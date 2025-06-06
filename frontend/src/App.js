@@ -1,14 +1,16 @@
 import React from 'react';
-import { Container, Typography } from '@mui/material';
+import { BrowserRouter, Routes, Route } from 'react-router-dom';
+import LoginPage from './pages/LoginPage';
+import SignupPage from './pages/SignupPage';
 
 function App() {
   return (
-    <Container>
-      <Typography variant="h4" gutterBottom>
-        🚗 Community Ride Sharing App
-      </Typography>
-
-    </Container>
+    <BrowserRouter>
+      <Routes>
+        <Route path="/login" element={<LoginPage />} />
+        <Route path="/signup" element={<SignupPage />} />
+      </Routes>
+    </BrowserRouter>
   );
 }
 
