@@ -1,6 +1,7 @@
+// models/rideModel.js
 const db = require('../config/db');
 
-const createRide = (rideData, callback) => {
+const createRide = async (rideData) => {
   const {
     user_id,
     from_location,
@@ -19,7 +20,7 @@ const createRide = (rideData, callback) => {
     ) VALUES (?, ?, ?, ?, ?, ?, ?, ?)
   `;
 
-  db.query(sql, [
+  const [result] = await db.execute(sql, [
     user_id,
     from_location,
     to_location,
@@ -27,8 +28,23 @@ const createRide = (rideData, callback) => {
     departure_datetime,
     seats_available,
     price_per_km,
-    total_price
-  ], callback);
+    total_price,
+  ]);
+
+  return result;
 };
 
-module.exports = { createRide };
+const searchRides = async (from, to, via) => {
+  let sql = `SELECT * FROM ride_offers WHERE from_location = ? AND to_location = ?`;
+  const params = [from, to];
+
+  if (via) {
+    sql += ` AND JSON_CONTAINS(via_locations, JSON_QUOTE(?))`;
+    params.push(via);
+  }
+
+  const [results] = await db.execute(sql, params);
+  return results;
+};
+
+module.exports = { createRide, searchRides };
