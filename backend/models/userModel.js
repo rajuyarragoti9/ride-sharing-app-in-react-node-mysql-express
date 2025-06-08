@@ -1,14 +1,15 @@
-// models/userModel.js
 const db = require('../config/db');
 
-const createUser = (name, email, hashedPassword, callback) => {
+const createUser = async (name, email, hashedPassword) => {
   const sql = 'INSERT INTO users (name, email, password) VALUES (?, ?, ?)';
-  db.query(sql, [name, email, hashedPassword], callback);
+  const [result] = await db.execute(sql, [name, email, hashedPassword]);
+  return result;
 };
 
-const findUserByEmail = (email, callback) => {
+const findUserByEmail = async (email) => {
   const sql = 'SELECT * FROM users WHERE email = ?';
-  db.query(sql, [email], callback);
+  const [rows] = await db.execute(sql, [email]);
+  return rows;
 };
 
 module.exports = { createUser, findUserByEmail };
