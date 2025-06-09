@@ -14,3 +14,4 @@ API.interceptors.request.use((req) => {
 });
 
 export const postRide = (formData) => API.post('/rides', formData);
+export const searchRides = (queryParams) => API.get('/rides/search', { params: queryParams });

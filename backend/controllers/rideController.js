@@ -25,7 +25,21 @@ const searchRideOffers = async (req, res) => {
     }
 
     const results = await searchRides(from_location, to_location, via_location);
-    res.json(results);
+
+    const formattedResults = results.map((ride) => ({
+      ...ride,
+      via_locations: Array.isArray(ride.via_locations)
+        ? ride.via_locations
+        : (() => {
+            try {
+              return JSON.parse(ride.via_locations);
+            } catch (err) {
+              return ride.via_locations.split(',').map((s) => s.trim());
+            }
+          })(),
+    }));
+
+    res.json({ rides: formattedResults });
   } catch (error) {
     console.error('Error searching ride offers:', error);
     res.status(500).json({ error: 'Database error during search' });
