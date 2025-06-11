@@ -22,4 +22,29 @@ const [ride] = await db.query(checkSeatsSql, [ride_id]);
   return db.query(updateSeatsSql, [seats_booked, ride_id]);
 };
 
-module.exports = { createBooking };
+
+const getUserBookings = async (user_id) => {
+  const sql = `
+    SELECT b.*, r.from_location, r.to_location, r.departure_datetime, r.status AS ride_status
+    FROM bookings b
+    JOIN ride_offers r ON b.ride_id = r.id
+    WHERE b.user_id = ?
+    ORDER BY r.departure_datetime DESC
+  `;
+  const [rows] = await db.query(sql, [user_id]);
+  return rows;
+};
+const getBookingsForRidesByOwner = async (owner_id) => {
+  const sql = `
+    SELECT b.*, u.name AS passenger_name, r.from_location, r.to_location, r.departure_datetime
+    FROM bookings b
+    JOIN ride_offers r ON b.ride_id = r.id
+    JOIN users u ON b.user_id = u.id
+    WHERE r.user_id = ?
+    ORDER BY r.departure_datetime DESC
+  `;
+  const [rows] = await db.query(sql, [owner_id]);
+  return rows;
+};
+
+module.exports = { createBooking ,getUserBookings,getBookingsForRidesByOwner};
