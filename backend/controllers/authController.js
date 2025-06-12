@@ -7,7 +7,7 @@ const signup = async (req, res) => {
   try {
     const existingUsers = await findUserByEmail(email);
     if (existingUsers.length > 0) {
-      return res.status(400).json({ message: 'User already exists' });
+      return res.status(400).json({ error: 'User already exists' });
     }
 
     const hashedPassword = await bcrypt.hash(password, 10);
@@ -25,13 +25,12 @@ const login = async (req, res) => {
   try {
     const users = await findUserByEmail(email);
     if (users.length === 0) {
-      return res.status(400).json({ message: 'Invalid credentials' });
+      return res.status(400).json({ error: 'Invalid credentials' });
     }
 
     const user = users[0];
     const isMatch = await bcrypt.compare(password, user.password);
-    if (!isMatch) return res.status(401).json({ message: 'Invalid credentials' });
-
+if (!isMatch) return res.status(401).json({ error: 'Invalid credentials' });
     const token = jwt.sign({ id: user.id, email: user.email }, process.env.JWT_SECRET, {
       expiresIn: '1d',
     });

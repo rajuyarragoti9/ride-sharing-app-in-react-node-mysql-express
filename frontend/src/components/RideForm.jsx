@@ -5,7 +5,7 @@ import { postRide } from '../api/rides';
 
 const RideForm = () => {
   const [form, setForm] = useState({
-    user_id: '', // replace this dynamically once auth integration is done
+    user_id: '', 
     from_location: '',
     to_location: '',
     via_locations: '',
@@ -25,7 +25,7 @@ const RideForm = () => {
       const rideData = {
         ...form,
         via_locations: form.via_locations.split(',').map((loc) => loc.trim()),
-        user_id: 1, // TEMP: Replace with logged-in user id later
+        user_id: 1, 
       };
       const { data } = await postRide(rideData);
       alert(data.message);

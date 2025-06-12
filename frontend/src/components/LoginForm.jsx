@@ -1,10 +1,12 @@
 import React, { useState } from 'react';
 import { TextField, Button, Box, Card, Typography } from '@mui/material';
 import { login } from '../api/auth';
+import { useNavigate } from 'react-router-dom'; 
+
 
 const LoginForm = () => {
   const [form, setForm] = useState({ email: '', password: '' });
-
+const navigate = useNavigate(); 
   const handleChange = (e) => {
     setForm({ ...form, [e.target.name]: e.target.value });
   };
@@ -15,6 +17,7 @@ const LoginForm = () => {
       const { data } = await login(form);
       localStorage.setItem('token', data.token);
       alert(data.message);
+      navigate('/search-rides');
     } catch (err) {
       alert(err.response?.data?.error || 'Login failed');
     }

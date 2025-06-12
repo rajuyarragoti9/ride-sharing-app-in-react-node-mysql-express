@@ -1,10 +1,11 @@
 import React, { useState } from "react";
 import { TextField, Button, Box, Card, Typography } from "@mui/material";
 import { signup } from "../api/auth";
+import { useNavigate } from 'react-router-dom';
 
 const SignupForm = () => {
   const [form, setForm] = useState({ name: "", email: "", password: "" });
-
+const navigate = useNavigate(); 
   const handleChange = (e) => {
     setForm({ ...form, [e.target.name]: e.target.value });
   };
@@ -14,6 +15,7 @@ const SignupForm = () => {
     try {
       const { data } = await signup(form);
       alert(data.message);
+      navigate('/login');
     } catch (err) {
       alert(err.response?.data?.error || "Signup failed");
     }

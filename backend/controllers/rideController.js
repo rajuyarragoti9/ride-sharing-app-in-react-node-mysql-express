@@ -3,7 +3,10 @@ const { createRide, searchRides } = require('../models/rideModel');
 
 const postRideOffer = async (req, res) => {
   try {
-    const rideData = req.body;
+    const rideData = {
+      ...req.body,
+      user_id: req.user.id, 
+    };
     const result = await createRide(rideData);
 
     res.status(201).json({
