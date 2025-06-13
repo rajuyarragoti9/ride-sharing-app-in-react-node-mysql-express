@@ -1,10 +1,8 @@
-import axios from "axios";
+import axiosInstance from "./axiosInstance";
 
-export const bookRide = async (bookingData) => {
-  const token = localStorage.getItem("token");
-  return axios.post(`${process.env.REACT_APP_BASE_URL}/bookings`, bookingData, {
-    headers: {
-      Authorization: `Bearer ${token}`,
-    },
-  });
-};
+export const bookRide = (data) => axiosInstance.post("/bookings", data);
+
+export const getMyBookings = () => axiosInstance.get("/bookings");
+
+export const getBookingsForMyRides = () =>
+  axiosInstance.get("/bookings/for-my-rides");

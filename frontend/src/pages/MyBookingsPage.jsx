@@ -1,80 +1,73 @@
 import React, { useEffect, useState } from "react";
-import axios from "axios";
-import { Card, CardContent, Typography, Grid, Box, Chip } from "@mui/material";
-import EventIcon from "@mui/icons-material/Event";
-import LocationOnIcon from "@mui/icons-material/LocationOn";
-import DriverCard from "../components/DriverCard"; // ✅ Import DriverCard
+import {
+  Container,
+  Typography,
+  CircularProgress,
+  Grid,
+  Card,
+  CardContent,
+} from "@mui/material";
+import { getBookingsForMyRides } from "../api/bookings";
 
-const MyBookingsPage = () => {
-  const [bookings, setBookings] = useState([]);
-
-  const fetchBookings = async () => {
-    try {
-      const token = localStorage.getItem("token");
-      const response = await axios.get(
-        "http://localhost:5000/api/bookings/my",
-        {
-          headers: { Authorization: `Bearer ${token}` },
-        }
-      );
-      setBookings(response.data.bookings);
-    } catch (err) {
-      console.error("Error fetching bookings:", err);
-    }
-  };
+const MyRideBookingsPage = () => {
+  const [rideBookings, setRideBookings] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState("");
 
   useEffect(() => {
-    fetchBookings();
+    const fetchRideBookings = async () => {
+      try {
+        const res = await getBookingsForMyRides();
+        setRideBookings(res.data.bookings);
+      } catch (err) {
+        setError("Failed to load ride bookings.");
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchRideBookings();
   }, []);
 
   return (
-    <Box p={3}>
-      <Typography variant="h4" mb={3}>
-        My Bookings
+    <Container sx={{ mt: 4 }}>
+      <Typography variant="h5" gutterBottom>
+        Passengers Booked My Rides
       </Typography>
-      <Grid container spacing={2}>
-        {bookings.map((booking) => {
-          const date = new Date(booking.departure_datetime);
-          const isPast = new Date() > date;
-          return (
-            <Grid
-              key={booking.id}
-              sx={{
-                width: "100%",
-                "@media (min-width: 900px)": { width: "50%" },
-                p: 1,
-              }}
-            >
-              <Card sx={{ backgroundColor: isPast ? "#f0f0f0" : "#e3f2fd" }}>
+
+      {loading ? (
+        <CircularProgress />
+      ) : error ? (
+        <Typography color="error">{error}</Typography>
+      ) : rideBookings.length === 0 ? (
+        <Typography>No bookings for your rides yet.</Typography>
+      ) : (
+        <Grid container spacing={2}>
+          {rideBookings.map((booking) => (
+            <Grid item xs={12} md={6} key={booking.booking_id}>
+              <Card elevation={2}>
                 <CardContent>
-                  <Typography variant="h6" gutterBottom>
-                    {booking.from_location} ➡ {booking.to_location}
-                  </Typography>
-                  <Typography variant="body2" color="textSecondary">
-                    <EventIcon fontSize="small" /> {date.toLocaleString()}
+                  <Typography variant="h6">
+                    {booking.from_location} → {booking.to_location}
                   </Typography>
                   <Typography variant="body2">
-                    <strong>Seats Booked:</strong> {booking.seats_booked}
+                    Date:{" "}
+                    {new Date(booking.departure_datetime).toLocaleString()}
                   </Typography>
-
-                  <Box mt={2}>
-                    <DriverCard driverId={booking.user_id} />
-                  </Box>
-
-                  <Chip
-                    label={isPast ? "Past" : "Upcoming"}
-                    color={isPast ? "default" : "primary"}
-                    size="small"
-                    sx={{ mt: 1 }}
-                  />
+                  <Typography variant="body2">
+                    Passenger: {booking.passenger_name} (User #{booking.passenger_id})
+                  </Typography>
+                  <Typography variant="body2">
+                    Seats Booked: {booking.seats_booked}
+                  </Typography>
                 </CardContent>
               </Card>
             </Grid>
-          );
-        })}
-      </Grid>
-    </Box>
+          ))}
+        </Grid>
+      )}
+    </Container>
   );
 };
 
-export default MyBookingsPage;
+export default MyRideBookingsPage;

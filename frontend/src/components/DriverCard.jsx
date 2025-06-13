@@ -7,7 +7,8 @@ import {
   CircularProgress,
 } from "@mui/material";
 import StarIcon from "@mui/icons-material/Star";
-import axios from "axios";
+
+import { getDriverRating, isDriver } from "../api/ratings";
 
 const DriverCard = ({ driverId, driverName }) => {
   const [rating, setRating] = useState(null);
@@ -15,21 +16,24 @@ const DriverCard = ({ driverId, driverName }) => {
   const [error, setError] = useState("");
 
   useEffect(() => {
-    const fetchRating = async () => {
+    const fetchDriverRatingIfApplicable = async () => {
       try {
-        const response = await axios.get(
-          `http://localhost:5000/api/ratings/driver/${driverId}`
-        );
-        setRating(response.data.average_rating);
+        const statusRes = await isDriver(driverId);
+        if (statusRes.data.isDriver) {
+          const res = await getDriverRating(driverId);
+          setRating(res.data.average_rating);
+        } else {
+          setRating(null); // Not a driver
+        }
       } catch (err) {
+        console.error("Rating fetch error:", err);
         setError("Rating unavailable");
-        console.error("Error fetching driver rating:", err);
       } finally {
         setLoading(false);
       }
     };
 
-    fetchRating();
+    fetchDriverRatingIfApplicable();
   }, [driverId]);
 
   return (
@@ -45,7 +49,7 @@ const DriverCard = ({ driverId, driverName }) => {
           <Typography variant="body2" color="error">
             {error}
           </Typography>
-        ) : (
+        ) : rating !== null ? (
           <Box display="flex" alignItems="center" gap={1}>
             <StarIcon color="primary" />
             <Typography variant="body2">
@@ -54,6 +58,10 @@ const DriverCard = ({ driverId, driverName }) => {
                 : "No rating"}
             </Typography>
           </Box>
+        ) : (
+          <Typography variant="body2" color="textSecondary">
+            No rating (Not a driver)
+          </Typography>
         )}
       </CardContent>
     </Card>
